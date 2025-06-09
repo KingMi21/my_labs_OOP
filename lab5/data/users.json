@@ -1,0 +1,18 @@
+[
+  {
+    "id": 0,
+    "login": "admin",
+    "password": "secret",
+    "name": "Administrator",
+    "email": "admin@stud.kantiana.ru",
+    "address": false
+  },
+  {
+    "id": 1,
+    "login": "user1",
+    "password": "1234",
+    "name": "Peter Petrov",
+    "email": "ivanov@stud.kantiana.ru",
+    "address": "Pushkina 123"
+  }
+]
