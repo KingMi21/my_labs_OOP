@@ -54,3 +54,15 @@ class SmtpEmailService(EmailServiceProtocol):
 class MockEmailService(EmailServiceProtocol):
     def send(self, to: str, subject: str, body: str) -> str:
         return f"Тестовое письмо для {to}: {subject}"
+
+
+def create_console_logger() -> LoggerProtocol:
+    return ConsoleLogger()
+
+
+def create_mock_database() -> DatabaseProtocol:
+    return MockDatabase()
+
+
+def create_smtp_email_service() -> EmailServiceProtocol:
+    return SmtpEmailService(smtp_server="smtp.default.com")

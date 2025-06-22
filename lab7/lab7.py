@@ -1,6 +1,7 @@
 from injector import Injector, LifeStyle
 from example import LoggerProtocol, DatabaseProtocol, EmailServiceProtocol, ConsoleLogger, MockDatabase, \
-    MockEmailService, FileLogger, SqlDatabase, SmtpEmailService
+    MockEmailService, FileLogger, SqlDatabase, SmtpEmailService, create_console_logger, create_mock_database, \
+    create_smtp_email_service
 
 COLORING = "\033[{}m{}\033[0m"
 
@@ -15,6 +16,13 @@ def configure_production(di_container: Injector) -> None:
                           params={'connection_string': 'server=prod;db=app'})
     di_container.register(EmailServiceProtocol, SmtpEmailService, LifeStyle.PER_REQUEST,
                           params={'smtp_server': 'smtp.example.com'})
+
+
+def configure_with_factories(di_container: Injector) -> None:
+    di_container.register(LoggerProtocol, factory_method=create_console_logger, life_style=LifeStyle.SINGLETON)
+    di_container.register(DatabaseProtocol, factory_method=create_mock_database, life_style=LifeStyle.SCOPED)
+    di_container.register(EmailServiceProtocol, factory_method=create_smtp_email_service,
+                          life_style=LifeStyle.PER_REQUEST)
 
 
 def configure_testing(di_container: Injector) -> None:
@@ -66,6 +74,18 @@ def demonstrate_test_config(di_container: Injector) -> None:
         print(email.send("test@example.com", "Тест", "Привет"))
 
 
+def demonstrate_factory_config(di_container: Injector) -> None:
+    logger = di_container.get_instance(LoggerProtocol)
+    logger.log("Логгер создан через фабричный метод")
+
+    with di_container.scope():
+        db = di_container.get_instance(DatabaseProtocol)
+        print(db.query("SELECT * FROM products"))
+
+        email = di_container.get_instance(EmailServiceProtocol)
+        print(email.send("factory@example.com", "Фабрика", "Это письмо создано через фабрику"))
+
+
 if __name__ == "__main__":
     production_injector = Injector()
     configure_production(production_injector)
@@ -74,3 +94,7 @@ if __name__ == "__main__":
     test_injector = Injector()
     configure_testing(test_injector)
     demonstrate_test_config(test_injector)
+
+    factory_injector = Injector()
+    configure_with_factories(factory_injector)
+    demonstrate_factory_config(factory_injector)
